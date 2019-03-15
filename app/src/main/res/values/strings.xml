@@ -4,6 +4,10 @@
     <string name="headlinePersons">Personen auswählen:</string>
     <string name="KiraBegau">Kira Begau</string>
     <string name="Mama">Mama</string>
-    <string name="Papa">Papa:</string>
+    <string name="Papa">Papa</string>
     <string name="Stefan">Stefan</string>
+    <string name="DateHeadline">Datum:</string>
+    <string name="EmpfaengerHeadline">Empfänger:</string>
+    <string name="BetreffHeadline">Betreff:</string>
+
 </resources>
