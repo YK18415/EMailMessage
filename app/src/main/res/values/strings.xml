@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">EMailMessage</string>
     <string name="action_settings">Settings</string>
+    <string name="headlinePersons">Personen auswählen:</string>
+    <string name="KiraBegau">Kira Begau</string>
+    <string name="Mama">Mama</string>
+    <string name="Papa">Papa:</string>
+    <string name="Stefan">Stefan</string>
 </resources>
