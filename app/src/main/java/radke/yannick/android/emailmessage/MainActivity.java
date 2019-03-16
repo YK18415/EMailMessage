@@ -11,11 +11,15 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    EditText editText_receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Buttons:
+        // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
+        editText_receiver = findViewById(R.id.editTextReceiver);
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
@@ -67,32 +72,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void choosePersons() {
-        final String[] items = {" Kira Schatzi", " Mama", " Papa", " Stefan B.", "Srefan S."};
-        final ArrayList itemsSelected = new ArrayList();
+
+        // The method setMultiChoiceItmes wants to have an Array. So, the persons-objects have to be converted, so that only the names are shown in the popup-menu.
+        final Person[] persons = {new Person("Kira", "Schatzi", "Student"), new Person("Kirsten", "Büggener", "VW")};
+        final String[] personsStringList = new String[persons.length];
+        for (int i = 0; i < persons.length; i++) {
+            personsStringList[i] = persons[i].getVorname() + " " + persons[i].getNachname();
+        }
+
+        final ArrayList personsSelected = new ArrayList();
 
         Dialog dialog;
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Personenwahl");
-        builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems( personsStringList, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
-                    itemsSelected.add(selectedItemId);
-                } else if (itemsSelected.contains(selectedItemId)) {
-                    itemsSelected.remove(Integer.valueOf(selectedItemId));
+                    personsSelected.add(selectedItemId);
+                } else if (personsSelected.contains(selectedItemId)) {
+                    personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
             }
         })
+                // Two buttons:
                 .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        //Your logic when OK button is clicked
+                        StringBuilder sb = new StringBuilder();
+
+                        for (int i = 0; i < personsSelected.size(); i++) {
+                            sb.append(personsStringList[(int) personsSelected.get(i)]);
+                            sb.append("; ");
+                            
+                        }
+
+                        editText_receiver.setText(sb.toString());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
+                        // Add persons the the 'Betreff':
+
                     }
                 });
         dialog = builder.create();
