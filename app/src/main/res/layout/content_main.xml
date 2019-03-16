@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:text="@string/EmpfaengerHeadline"
         app:layout_constraintEnd_toStartOf="@+id/editTextReceiver"
@@ -60,7 +60,7 @@
         android:layout_marginTop="40dp"
         android:layout_marginEnd="8dp"
         android:text="@string/DateHeadline"
-        app:layout_constraintEnd_toStartOf="@+id/editText7"
+        app:layout_constraintEnd_toStartOf="@+id/editTextDate"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
@@ -80,19 +80,18 @@
 
     <EditText
         android:id="@+id/editTextReceiver"
-        android:layout_width="wrap_content"
+        android:layout_width="302dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="ujip"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_show_people" />
 
     <EditText
-        android:id="@+id/editText7"
-        android:layout_width="wrap_content"
+        android:id="@+id/editTextDate"
+        android:layout_width="303dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -103,14 +102,14 @@
 
     <EditText
         android:id="@+id/editText8"
-        android:layout_width="wrap_content"
+        android:layout_width="302dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText7" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextDate" />
 
     <Button
         android:id="@+id/btn_show_people"

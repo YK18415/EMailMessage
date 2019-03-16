@@ -2,6 +2,7 @@ package radke.yannick.android.emailmessage;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -14,8 +15,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +38,22 @@ public class MainActivity extends AppCompatActivity {
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
         editText_receiver = findViewById(R.id.editTextReceiver);
+        EditText editTextDate = findViewById(R.id.editTextDate);
+
+
+        // (1) get today's date
+        Date today = Calendar.getInstance().getTime();
+
+        // (2) create a date "formatter" (the date format we want)
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        // (3) create a new String using the date format we want
+        String folderName = formatter.format(today);
+
+        // (4) this prints "Folder Name = 2009-09-06-08.23.23"
+        editTextDate.setText(folderName);
+
+
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
@@ -99,12 +122,14 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
+                        // Add persons the the 'Betreff':
                         StringBuilder sb = new StringBuilder();
 
                         for (int i = 0; i < personsSelected.size(); i++) {
                             sb.append(personsStringList[(int) personsSelected.get(i)]);
-                            sb.append("; ");
-                            
+                            if(i+1 < personsSelected.size()) {
+                                sb.append("; ");
+                            }
                         }
 
                         editText_receiver.setText(sb.toString());
@@ -114,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
-                        // Add persons the the 'Betreff':
+
 
                     }
                 });
