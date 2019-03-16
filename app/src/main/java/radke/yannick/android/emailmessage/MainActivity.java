@@ -31,36 +31,7 @@ public class MainActivity extends AppCompatActivity {
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String[] items = {" Kira Schatzi", " Mama", " Papa", " Stefan B.", "Srefan S."};
-                final ArrayList itemsSelected = new ArrayList();
-
-                Dialog dialog;
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Personenwahl");
-                builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
-                        if (isSelected) {
-                            itemsSelected.add(selectedItemId);
-                        } else if (itemsSelected.contains(selectedItemId)) {
-                            itemsSelected.remove(Integer.valueOf(selectedItemId));
-                        }
-                    }
-                })
-                        .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Your logic when OK button is clicked
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                dialog = builder.create();
-                dialog.show();
+                choosePersons();
             }
         });
 
@@ -93,5 +64,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void choosePersons() {
+        final String[] items = {" Kira Schatzi", " Mama", " Papa", " Stefan B.", "Srefan S."};
+        final ArrayList itemsSelected = new ArrayList();
+
+        Dialog dialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Personenwahl");
+        builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
+                if (isSelected) {
+                    itemsSelected.add(selectedItemId);
+                } else if (itemsSelected.contains(selectedItemId)) {
+                    itemsSelected.remove(Integer.valueOf(selectedItemId));
+                }
+            }
+        })
+                .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Your logic when OK button is clicked
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        dialog = builder.create();
+        dialog.show();
     }
 }
