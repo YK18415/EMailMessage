@@ -10,8 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,8 +24,10 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editTextReceiver;
     EditText editTextConcerning;
-    Person[] persons;
-    String emailadresses[];
+    Person newPerson;
+    List<String> emailadressesList;
+    String emailadressesArray[];
+    List<Person> personList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
         editTextReceiver = findViewById(R.id.editTextReceiver);
         EditText editTextDate = findViewById(R.id.editTextDate);
 
-
         // Date:
         Date today = Calendar.getInstance().getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         String folderName = formatter.format(today);
         editTextDate.setText(folderName);
+
+        // Add standard-persons (It is a kind of a seeder):
+        personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
+        personList.add(new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de"));
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
@@ -61,40 +64,48 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Die E-Mail wurde verschickt.", Toast.LENGTH_LONG).show();
-                sendEmail();
+                // check, if there are at least one receiver:
+                if(!editTextReceiver.getText().toString().equals("")) {
+                    Toast.makeText(MainActivity.this, "Die E-Mail wird gleich verschickt.", Toast.LENGTH_LONG).show();
+                    sendEmail();
+                } else {
+                    Toast.makeText(MainActivity.this, "Sie haben keinen Empfänger angegeben.", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
 
     private void chooseReceivers() {
+        // added the newPerson, who was created by the user in the popup-menu:
+        if(newPerson != null) {
+            personList.add(newPerson);
+        }
 
         // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
-        final Person[] receivers = fillAndGetReceivers();
-        final String[] personsStringList = new String[receivers.length];
-        emailadresses = new String[receivers.length];
+        final String[] personsStringList = new String[personList.size()];
+        emailadressesList = new ArrayList<>();
 
-        for (int i = 0; i < receivers.length; i++) {
-            personsStringList[i] = receivers[i].getVorname() + " " + receivers[i].getNachname();
-            emailadresses[i] = receivers[i].getEmailadress();
+        for (int i = 0; i < personList.size(); i++) {
+            personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
         }
 
         final ArrayList personsSelected = new ArrayList();
 
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(" Empfängerwahl");
+        builder.setTitle("Empfängerwahl");
         builder.setMultiChoiceItems( personsStringList, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
                     personsSelected.add(selectedItemId);
+                    emailadressesList.add(personList.get(Integer.valueOf(selectedItemId)).getEmailadress());
                 } else if (personsSelected.contains(selectedItemId)) {
                     personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
             }
         })
-                // Two buttons:
+                // Three buttons:
                 .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -120,15 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 .setNeutralButton("Neue Person", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(MainActivity.this, "Neue Activity soll gestartet werden.", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
                         startActivityForResult(intent, 1);
-                        // startActivity(intent);
-
-                        // Get the new Persons:
-
-                        // Add this to the persons[]:
-
                     }
                 });
         dialog = builder.create();
@@ -139,16 +143,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                Person newPerson = (Person) data.getExtras().getSerializable("PERSON"); // getParcelableExtra("object");
+                newPerson = (Person) data.getExtras().getSerializable("PERSON"); // getParcelableExtra("object");
             }
         }
-    }
-
-    private Person[] fillAndGetReceivers() {
-        Person[] persons = {new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"),
-                new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de")};
-
-        return persons;
     }
 
     protected void sendEmail() {
@@ -156,7 +153,8 @@ public class MainActivity extends AppCompatActivity {
         String message = editTextMessage.getText().toString();
         String betreff = editTextConcerning.getText().toString();
 
-        String[] TO = emailadresses;
+        emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
+        String[] TO = emailadressesArray;
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
         // Ohne dem funktioniert es nicht, wieso?

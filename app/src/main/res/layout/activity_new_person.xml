@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:text="@string/NewPersonActivityHeadline"
         android:textSize="24sp"
@@ -24,24 +24,19 @@
         android:id="@+id/textViewVorname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toStartOf="@+id/editTextVorname"
+        android:text="@string/Vorname"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextVorname"
-        tools:text="@string/Vorname" />
+        app:layout_constraintTop_toTopOf="@+id/editTextVorname" />
 
     <TextView
         android:id="@+id/textViewNachname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="60dp"
         android:text="@string/Nachname"
-        app:layout_constraintEnd_toStartOf="@+id/editTextNachname"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewVorname" />
 
@@ -49,11 +44,9 @@
         android:id="@+id/textViewBeruf"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="60dp"
-        android:layout_marginEnd="8dp"
         android:text="@string/Beruf"
-        app:layout_constraintEnd_toStartOf="@+id/editTextBeruf"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewNachname" />
 
@@ -61,11 +54,9 @@
         android:id="@+id/textViewEMailadress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="60dp"
-        android:layout_marginEnd="8dp"
         android:text="@string/EMailadress"
-        app:layout_constraintEnd_toStartOf="@+id/editTextEMailadress"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewBeruf" />
 
@@ -73,48 +64,56 @@
         android:id="@+id/editTextEMailadress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:hint="@string/EMailadress"
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewEMailadress"
         app:layout_constraintTop_toBottomOf="@+id/editTextBeruf" />
 
     <EditText
         android:id="@+id/editTextVorname"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:hint="@string/Vorname"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewVorname"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
         android:id="@+id/editTextNachname"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:hint="@string/Nachname"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewNachname"
         app:layout_constraintTop_toBottomOf="@+id/editTextVorname" />
 
     <EditText
         android:id="@+id/editTextBeruf"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="67dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:hint="@string/Beruf"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewBeruf"
         app:layout_constraintTop_toBottomOf="@+id/editTextNachname" />
 
     <Button
