@@ -2,7 +2,9 @@ package radke.yannick.android.emailmessage;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -26,7 +28,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText editText_receiver;
+    EditText editTextReceiver;
+    EditText editTextConcerning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,23 +40,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
-        editText_receiver = findViewById(R.id.editTextReceiver);
+        editTextConcerning = findViewById(R.id.editTextConcerning);
+        editTextReceiver = findViewById(R.id.editTextReceiver);
         EditText editTextDate = findViewById(R.id.editTextDate);
 
 
-        // (1) get today's date
+        // Date:
         Date today = Calendar.getInstance().getTime();
-
-        // (2) create a date "formatter" (the date format we want)
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-
-        // (3) create a new String using the date format we want
         String folderName = formatter.format(today);
-
-        // (4) this prints "Folder Name = 2009-09-06-08.23.23"
         editTextDate.setText(folderName);
-
-
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Toast.makeText(MainActivity.this, "Die E-Mail wurde verschickt.", Toast.LENGTH_LONG).show();
+                sendEmail();
             }
         });
     }
@@ -132,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        editText_receiver.setText(sb.toString());
+                        editTextReceiver.setText(sb.toString());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -145,5 +142,31 @@ public class MainActivity extends AppCompatActivity {
                 });
         dialog = builder.create();
         dialog.show();
+    }
+
+    protected void sendEmail() {
+        EditText editTextMessage = findViewById(R.id.editTextMessage);
+        String message = editTextMessage.getText().toString();
+        String betreff = editTextConcerning.getText().toString();
+
+        String[] TO = {"yannick.radke@gmx.de"};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+        // Ohne dem funktioniert es nicht, wieso?
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+
+
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);       // A String[] holding e-mail addresses that should be delivered to.
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, betreff); // A constant string holding the (desired subject line == Betreffzeile) of a message.
+        emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this,
+                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

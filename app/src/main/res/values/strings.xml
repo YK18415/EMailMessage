@@ -9,5 +9,9 @@
     <string name="DateHeadline">Datum:</string>
     <string name="EmpfaengerHeadline">Empfänger:</string>
     <string name="BetreffHeadline">Betreff:</string>
+    <string name="MessageHint">Ihre Mitteilung</string>
+    <string name="chooseReceivers">Empfänger auswählen</string>
+
+
 
 </resources>
