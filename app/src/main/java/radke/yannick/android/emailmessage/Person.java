@@ -5,11 +5,13 @@ public class Person {
     private String vorname;
     private String nachname;
     private String beruf;
+    private String emailadress;
 
-    public Person(String vorname, String nachname, String beruf) {
+    public Person(String vorname, String nachname, String beruf, String emailadress) {
         this.vorname = vorname;
         this.nachname = nachname;
         this.beruf = beruf;
+        this.emailadress = emailadress;
     }
 
     public String getVorname() {
@@ -34,6 +36,14 @@ public class Person {
 
     public void setBeruf(String beruf) {
         this.beruf = beruf;
+    }
+
+    public String getEmailadress() {
+        return emailadress;
+    }
+
+    public void setEmailadress(String enailadress) {
+        this.emailadress = enailadress;
     }
 
 }
