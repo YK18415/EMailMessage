@@ -12,6 +12,12 @@
     <string name="MessageHint">Ihre Mitteilung</string>
     <string name="chooseReceivers">Empfänger auswählen</string>
 
-
+    <!-- New activity -->
+    <string name="NewPersonActivityHeadline">Neue Person hinzufügen</string>
+    <string name="Vorname">Vorname:</string>
+    <string name="Nachname">Nachname:</string>
+    <string name="Beruf">Beruf:</string>
+    <string name="EMailadress">E-Mail-Adresse:</string>
+    <string name="Save">Speichern</string>
 
 </resources>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="radke.yannick.android.emailmessage">
-    <!--Starticon: Source-URL: https://pixabay.com/de/illustrations/mail-nachricht-e-mail-1454731/
-                   Author: Deans_Icons -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,11 +9,13 @@
         android:roundIcon="@mipmap/mail_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".NewPersonActivity"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
+
                 <!-- Activity wird automatisch gestartet. -->
                 <action android:name="android.intent.action.MAIN" />
 

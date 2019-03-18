@@ -121,10 +121,27 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(MainActivity.this, "Neue Activity soll gestartet werden.", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
+                        startActivityForResult(intent, 1);
+                        // startActivity(intent);
+
+                        // Get the new Persons:
+
+                        // Add this to the persons[]:
+
                     }
                 });
         dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK) {
+                Person newPerson = (Person) data.getExtras().getSerializable("PERSON"); // getParcelableExtra("object");
+            }
+        }
     }
 
     private Person[] fillAndGetReceivers() {
