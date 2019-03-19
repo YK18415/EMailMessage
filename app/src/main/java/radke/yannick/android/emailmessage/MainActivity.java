@@ -91,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
 
         final ArrayList personsSelected = new ArrayList();
 
+        openPopupDialog(personsSelected, personsStringList);
+    }
+
+    private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList) {
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Empfängerwahl");
@@ -110,16 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // Add receivers the the 'Betreff':
-                        StringBuilder sb = new StringBuilder();
-
-                        for (int i = 0; i < personsSelected.size(); i++) {
-                            sb.append(personsStringList[(int) personsSelected.get(i)]);
-                            if(i+1 < personsSelected.size()) {
-                                sb.append("; ");
-                            }
-                        }
-
-                        editTextReceiver.setText(sb.toString());
+                        addReceiversToConcerning(personsSelected, personsStringList);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -135,8 +130,22 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(intent, 1);
                     }
                 });
+
         dialog = builder.create();
         dialog.show();
+    }
+
+    private void addReceiversToConcerning(ArrayList personsSelected, String[] personsStringList) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < personsSelected.size(); i++) {
+            sb.append(personsStringList[(int) personsSelected.get(i)]);
+            if(i+1 < personsSelected.size()) {
+                sb.append("; ");
+            }
+        }
+
+        editTextReceiver.setText(sb.toString());
     }
 
     @Override
