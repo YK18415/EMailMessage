@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void chooseReceivers() {
         // added the newPerson, who was created by the user in the popup-menu:
-        if(newPerson != null) {
+        if(newPerson != null && !personList.contains(newPerson)) {
             personList.add(newPerson);
         }
 
