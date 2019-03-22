@@ -1,8 +1,10 @@
 package radke.yannick.android.emailmessage;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,12 +24,20 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static Context context;
+
     EditText editTextReceiver;
     EditText editTextConcerning;
     Person newPerson;
     List<String> emailadressesList;
     String emailadressesArray[];
     List<Person> personList = new ArrayList<>();
+    EditText editTextMessage;
+    String s;
+
+    //Storage:
+    SharedPreferences.Editor editor;
+    SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +45,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        context = getApplicationContext();
+
+        // Storage:
+        settings = context.getSharedPreferences("userdetails", MODE_PRIVATE); // Zum Lesen.
+        editor = settings.edit(); // Zum Schreiben.
 
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
         editTextConcerning = findViewById(R.id.editTextConcerning);
         editTextReceiver = findViewById(R.id.editTextReceiver);
         EditText editTextDate = findViewById(R.id.editTextDate);
+        editTextMessage = findViewById(R.id.editTextMessage);
 
         // Date:
         Date today = Calendar.getInstance().getTime();
@@ -158,8 +174,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Store the data:
+        editor.putString("message", String.valueOf(editTextMessage.getText()));
+        editor.putString("concerning", String.valueOf(editTextConcerning.getText()));
+        editor.commit();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+         editTextMessage.setText(settings.getString("message",""));
+         editTextConcerning.setText(settings.getString("concerning", ""));
+    }
+
     protected void sendEmail() {
-        EditText editTextMessage = findViewById(R.id.editTextMessage);
+
         String message = editTextMessage.getText().toString();
         String betreff = editTextConcerning.getText().toString();
 
