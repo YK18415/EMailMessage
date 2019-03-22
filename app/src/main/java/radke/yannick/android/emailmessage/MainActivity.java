@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                newPerson = (Person) data.getExtras().getSerializable("PERSON"); // getParcelableExtra("object");
+                newPerson = (Person) data.getExtras().getSerializable("PERSON");
             }
         }
     }
@@ -164,6 +165,21 @@ public class MainActivity extends AppCompatActivity {
 
         emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
         String[] TO = emailadressesArray;
+
+        /*
+        String mailto = "mailto:bob@example.org.yannick.radke@gmx.de" +
+                "?cc=" + "alice@example.com" +
+                "&body=" + Uri.encode(message);
+
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        //emailIntent.setData(Uri.parse(mailto));
+        emailIntent.setData(Uri.parse("mailto:first.mail@gmail.com,second.mail@gmail.com"));
+        //emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] {"user@example.com", "yannick.radke@gmx.de"});
+
+
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);//, Uri.parse("mailto:" + "yannick.radke@gmx.de")); //ACTION_SEND); // Oder ACTION_SENDTO, oder ACTION_MAILTO (Nur Mail-Programme.)
+*/
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
         // Ohne dem funktioniert es nicht, wieso?
@@ -174,8 +190,9 @@ public class MainActivity extends AppCompatActivity {
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, betreff); // A constant string holding the (desired subject line == Betreffzeile) of a message.
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 
+
         try {
-            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            startActivity(Intent.createChooser(emailIntent, "Verschicke E-Mail..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(MainActivity.this,
