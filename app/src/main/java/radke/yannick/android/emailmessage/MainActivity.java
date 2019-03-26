@@ -7,15 +7,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -93,6 +103,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void chooseReceivers() {
+        // Get saved string data in it.
+        String popupReceiverListString = settings.getString("PERSONLIST", "");
+
+        // Create Gson object and translate the json string to related java object array.
+        Gson gson = new Gson();
+        Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
+
+        for (int i = 0; i < userInfoDtoArray.length; i++) {
+            if(userInfoDtoArray.length == personList.size()) {
+                if(personList.get(i).equals(userInfoDtoArray[i])) {
+                    personList.add(userInfoDtoArray[i]);
+                }
+            } else {
+                try {
+                    if(personList.get(i).equals(userInfoDtoArray[i])) {
+
+                    }
+                } catch (Exception e) {
+                    personList.add(userInfoDtoArray[i]);
+                }
+            }
+        }
+
         // added the newPerson, who was created by the user in the popup-menu:
         if(newPerson != null && !personList.contains(newPerson)) {
             personList.add(newPerson);
@@ -111,7 +144,15 @@ public class MainActivity extends AppCompatActivity {
         openPopupDialog(personsSelected, personsStringList);
     }
 
+    public void savePersonList(String key, String value) {
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+
     private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList) {
+
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Empfängerwahl");
@@ -170,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
                 newPerson = (Person) data.getExtras().getSerializable("PERSON");
+
+                // Store the new person:
+                editor.putString("jsondata", newPerson.toString());
             }
         }
     }
@@ -181,6 +225,20 @@ public class MainActivity extends AppCompatActivity {
         // Store the data:
         editor.putString("message", String.valueOf(editTextMessage.getText()));
         editor.putString("concerning", String.valueOf(editTextConcerning.getText()));
+
+        // Store personList:
+        Gson gson = new Gson();
+        String s = gson.toJson(personList);
+        editor.putString("PERSONLIST", s);
+
+   /*     // Get java object list json format string.
+        String userInfoListJsonString = gson.toJson(personList);
+
+        // Create SharedPreferences object.
+
+        // Put the json format string to SharedPreferences object.
+        editor.putString("pList", String.valueOf(personList));*/
+
         editor.commit();
     }
 
