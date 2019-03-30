@@ -7,25 +7,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     String emailadressesArray[];
     List<Person> personList = new ArrayList<>();
     EditText editTextMessage;
-    String s;
 
     //Storage:
     SharedPreferences.Editor editor;
@@ -69,10 +60,7 @@ public class MainActivity extends AppCompatActivity {
         editTextMessage = findViewById(R.id.editTextMessage);
 
         // Date:
-        Date today = Calendar.getInstance().getTime();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        String folderName = formatter.format(today);
-        editTextDate.setText(folderName);
+        setEditTextDate(editTextDate);
 
         // Add standard-persons (It is a kind of a seeder):
         personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
@@ -85,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
                 chooseReceivers();
             }
         });
-
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +89,103 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setEditTextDate(EditText editTextDate) {
+        Date today = Calendar.getInstance().getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        String folderName = formatter.format(today);
+        editTextDate.setText(folderName);
+    }
+
     private void chooseReceivers() {
+        loadPersonList();
+
+        // added the newPerson, who was created by the user in the popup-menu:
+        if(newPerson != null && !personList.contains(newPerson)) {
+            personList.add(newPerson);
+        }
+
+        // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
+        final String[] personsStringList = new String[personList.size()];
+        emailadressesList = new ArrayList<>();
+
+        for (int i = 0; i < personList.size(); i++) {
+            personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
+        }
+
+        //Load personSelected:
+        List<String> personSelectedStorage = new ArrayList<>();
+
+        // Get saved string data in it.
+        String personSelectedStorageString = settings.getString("personsSelected", "");
+
+        // Create Gson object and translate the json string to related java object array.
+        Gson gson = new Gson();
+        int personSelectedStorArray[] = gson.fromJson(personSelectedStorageString, int[].class);
+
+        final ArrayList personsSelected = new ArrayList();
+
+        if(personSelectedStorArray != null) {
+            for (int personSelectedStorageItem: personSelectedStorArray) {
+                if(!personsSelected.contains(personSelectedStorageItem)) {
+                    personsSelected.add(personSelectedStorageItem);
+                }
+            }
+        }
+        openPopupDialog(personsSelected, personsStringList);
+    }
+
+    private void openPopupDialog(final ArrayList<Integer> personsSelected, final String[] personsStringList) {
+
+        Dialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Empfängerwahl");
+        builder.setMultiChoiceItems( personsStringList, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
+                if (isSelected) {
+                    if(personList.contains(selectedItemId)) {
+                        personsSelected.add(selectedItemId);
+                        emailadressesList.add(personList.get(Integer.valueOf(selectedItemId)).getEmailadress());
+                    }
+                } else if (personsSelected.contains(selectedItemId)) {
+                    personsSelected.remove(Integer.valueOf(selectedItemId));
+                }
+            }
+        })
+                // Three buttons:
+                .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Add receivers the the 'Betreff':
+                        addReceiversToConcerning(personsSelected, personsStringList);
+                        // Store personsSelected:
+                        Gson gson = new Gson();
+                        String personSelectedStor = gson.toJson(personsSelected);
+
+                        editor.putString("personsSelected", personSelectedStor);
+
+                        editor.commit();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNeutralButton("Neue Person", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
+                        startActivityForResult(intent, 1);
+                    }
+                });
+
+        dialog = builder.create();
+        dialog.show();
+    }
+
+    private void loadPersonList() {
         // Get saved string data in it.
         String popupReceiverListString = settings.getString("PERSONLIST", "");
 
@@ -125,72 +208,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
-        // added the newPerson, who was created by the user in the popup-menu:
-        if(newPerson != null && !personList.contains(newPerson)) {
-            personList.add(newPerson);
-        }
-
-        // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
-        final String[] personsStringList = new String[personList.size()];
-        emailadressesList = new ArrayList<>();
-
-        for (int i = 0; i < personList.size(); i++) {
-            personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
-        }
-
-        final ArrayList personsSelected = new ArrayList();
-
-        openPopupDialog(personsSelected, personsStringList);
-    }
-
-    public void savePersonList(String key, String value) {
-
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
-
-    private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList) {
-
-        Dialog dialog;
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Empfängerwahl");
-        builder.setMultiChoiceItems( personsStringList, null, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
-                if (isSelected) {
-                    personsSelected.add(selectedItemId);
-                    emailadressesList.add(personList.get(Integer.valueOf(selectedItemId)).getEmailadress());
-                } else if (personsSelected.contains(selectedItemId)) {
-                    personsSelected.remove(Integer.valueOf(selectedItemId));
-                }
-            }
-        })
-                // Three buttons:
-                .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Add receivers the the 'Betreff':
-                        addReceiversToConcerning(personsSelected, personsStringList);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNeutralButton("Neue Person", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
-                        startActivityForResult(intent, 1);
-                    }
-                });
-
-        dialog = builder.create();
-        dialog.show();
     }
 
     private void addReceiversToConcerning(ArrayList personsSelected, String[] personsStringList) {
@@ -210,10 +227,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                newPerson = (Person) data.getExtras().getSerializable("PERSON");
-
-                // Store the new person:
-                editor.putString("jsondata", newPerson.toString());
+                newPerson = (Person) data.getExtras().getSerializable("PERSON");;
             }
         }
     }
@@ -230,14 +244,6 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String s = gson.toJson(personList);
         editor.putString("PERSONLIST", s);
-
-   /*     // Get java object list json format string.
-        String userInfoListJsonString = gson.toJson(personList);
-
-        // Create SharedPreferences object.
-
-        // Put the json format string to SharedPreferences object.
-        editor.putString("pList", String.valueOf(personList));*/
 
         editor.commit();
     }
