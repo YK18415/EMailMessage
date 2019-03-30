@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -56,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
         Button btnShowPeople = findViewById(R.id.btn_show_people);
         editTextConcerning = findViewById(R.id.editTextConcerning);
         editTextReceiver = findViewById(R.id.editTextReceiver);
-        EditText editTextDate = findViewById(R.id.editTextDate);
+        TextView textViewDate = findViewById(R.id.textViewDate);
         editTextMessage = findViewById(R.id.editTextMessage);
 
         // Date:
-        setEditTextDate(editTextDate);
+        setEditTextDate(textViewDate);
 
         // Add standard-persons (It is a kind of a seeder):
         personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
@@ -89,11 +90,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setEditTextDate(EditText editTextDate) {
+    private void setEditTextDate(TextView textViewDate) {
         Date today = Calendar.getInstance().getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         String folderName = formatter.format(today);
-        editTextDate.setText(folderName);
+        textViewDate.setText(folderName);
     }
 
     private void chooseReceivers() {
