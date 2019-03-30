@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     String emailadressesArray[];
     List<Person> personList = new ArrayList<>();
     EditText editTextMessage;
+    TextView textViewDate;
 
     //Storage:
     SharedPreferences.Editor editor;
@@ -57,11 +58,9 @@ public class MainActivity extends AppCompatActivity {
         Button btnShowPeople = findViewById(R.id.btn_show_people);
         editTextConcerning = findViewById(R.id.editTextConcerning);
         editTextReceiver = findViewById(R.id.editTextReceiver);
-        TextView textViewDate = findViewById(R.id.textViewDate);
-        editTextMessage = findViewById(R.id.editTextMessage);
-
-        // Date:
+        textViewDate = findViewById(R.id.textViewDate);
         setEditTextDate(textViewDate);
+        editTextMessage = findViewById(R.id.editTextMessage);
 
         // Add standard-persons (It is a kind of a seeder):
         personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
@@ -144,10 +143,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
-                    if(personList.contains(selectedItemId)) {
+                   // if(!personList.contains(selectedItemId)) {
                         personsSelected.add(selectedItemId);
                         emailadressesList.add(personList.get(Integer.valueOf(selectedItemId)).getEmailadress());
-                    }
+                    //}
                 } else if (personsSelected.contains(selectedItemId)) {
                     personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
@@ -194,18 +193,20 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
 
-        for (int i = 0; i < userInfoDtoArray.length; i++) {
-            if(userInfoDtoArray.length == personList.size()) {
-                if(personList.get(i).equals(userInfoDtoArray[i])) {
-                    personList.add(userInfoDtoArray[i]);
-                }
-            } else {
-                try {
+        if(userInfoDtoArray != null) {
+            for (int i = 0; i < userInfoDtoArray.length; i++) {
+                if(userInfoDtoArray.length == personList.size()) {
                     if(personList.get(i).equals(userInfoDtoArray[i])) {
-
+                        personList.add(userInfoDtoArray[i]);
                     }
-                } catch (Exception e) {
-                    personList.add(userInfoDtoArray[i]);
+                } else {
+                    try {
+                        if(personList.get(i).equals(userInfoDtoArray[i])) {
+
+                        }
+                    } catch (Exception e) {
+                        personList.add(userInfoDtoArray[i]);
+                    }
                 }
             }
         }
@@ -252,13 +253,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-         editTextMessage.setText(settings.getString("message",""));
-         editTextConcerning.setText(settings.getString("concerning", ""));
+        editTextMessage.setText(settings.getString("message",""));
+        editTextConcerning.setText(settings.getString("concerning", ""));
     }
 
     protected void sendEmail() {
 
-        String message = editTextMessage.getText().toString();
+        String message = editTextMessage.getText().toString() + "\n\n----\nGeschrieben am: " + textViewDate.getText();
         String betreff = editTextConcerning.getText().toString();
 
         emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
