@@ -218,7 +218,15 @@ public class MainActivity extends AppCompatActivity {
 
         if(userInfoDtoArray != null) {
             for (int i = 0; i < userInfoDtoArray.length; i++) {
-                if(userInfoDtoArray.length == personList.size()) {
+                try{
+                    if(personList.get(i).equals(userInfoDtoArray[i])) {
+                        personList.add(userInfoDtoArray[i]);
+                    }
+                } catch (Exception e){
+                    personList.add(userInfoDtoArray[i]);
+                }
+
+                /*if(userInfoDtoArray.length == personList.size()) {
                     if(personList.get(i).equals(userInfoDtoArray[i])) {
                         personList.add(userInfoDtoArray[i]);
                     }
@@ -230,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         personList.add(userInfoDtoArray[i]);
                     }
-                }
+                }*/
             }
         }
     }
