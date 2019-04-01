@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextMessage;
     TextView textViewDate;
 
+    ArrayList personsSelected = new ArrayList();
+    boolean[] personSelectedBoolean;
+
     //Storage:
     SharedPreferences.Editor editor;
     SharedPreferences settings;
@@ -122,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         int personSelectedStorArray[] = gson.fromJson(personSelectedStorageString, int[].class);
 
-        final ArrayList personsSelected = new ArrayList();
-
         if(personSelectedStorArray != null) {
             for (int personSelectedStorageItem: personSelectedStorArray) {
                 if(!personsSelected.contains(personSelectedStorageItem)) {
@@ -131,21 +132,39 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        openPopupDialog(personsSelected, personsStringList);
+
+        personSelectedBoolean = new boolean[personsStringList.length];
+        int i = 0;
+        int j = 0;
+
+        try{
+            for (i = 0; i < personsSelected.size(); i++) {     // Über personSelected iterieren.
+                for(j = 0; j < personSelectedBoolean.length; j++) {   // Über personSelectedBoolean iterieren.
+                    if(j == (int)personsSelected.get(i)) {
+                        personSelectedBoolean[j] = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("I: " + i + " J: " + j);
+            System.out.println(e.getStackTrace().toString());
+        }
+
+
+        openPopupDialog(personsSelected, personsStringList, personSelectedBoolean);
     }
 
-    private void openPopupDialog(final ArrayList<Integer> personsSelected, final String[] personsStringList) {
-
+    private void openPopupDialog(final ArrayList<Integer> personsSelected, final String[] personsStringList, boolean[] personSelectedBoolean) {
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Empfängerwahl");
-        builder.setMultiChoiceItems( personsStringList, null, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems( personsStringList, personSelectedBoolean, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
                    // if(!personList.contains(selectedItemId)) {
                         personsSelected.add(selectedItemId);
-                        emailadressesList.add(personList.get(Integer.valueOf(selectedItemId)).getEmailadress());
+
                     //}
                 } else if (personsSelected.contains(selectedItemId)) {
                     personsSelected.remove(Integer.valueOf(selectedItemId));
@@ -156,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
+                        for (Integer personSelectedItem: personsSelected) {
+                            emailadressesList.add(personList.get(personSelectedItem).getEmailadress());
+                        }
+
                         // Add receivers the the 'Betreff':
                         addReceiversToConcerning(personsSelected, personsStringList);
                         // Store personsSelected:
@@ -291,6 +314,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
+            // Clear for the selectedPersons:
+            personsSelected.clear();
+            for(int i = 0; i < personSelectedBoolean.length; i++) {
+                personSelectedBoolean[i] = false;
+            }
+
             startActivity(Intent.createChooser(emailIntent, "Verschicke E-Mail..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
