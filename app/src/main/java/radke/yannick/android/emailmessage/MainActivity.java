@@ -115,28 +115,25 @@ public class MainActivity extends AppCompatActivity {
             personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
         }
 
-        //Load personSelected:
-        List<String> personSelectedStorage = new ArrayList<>();
-
-        // Get saved string data in it.
+        // Get saved personSelected string data in it.
         String personSelectedStorageString = settings.getString("personsSelected", "");
 
         // Create Gson object and translate the json string to related java object array.
         Gson gson = new Gson();
-        int personSelectedStorArray[] = gson.fromJson(personSelectedStorageString, int[].class);
+        int personSelectedStorageArray[] = gson.fromJson(personSelectedStorageString, int[].class);
 
-        if(personSelectedStorArray != null) {
-            for (int personSelectedStorageItem: personSelectedStorArray) {
+        if(personSelectedStorageArray != null) {
+            for (int personSelectedStorageItem: personSelectedStorageArray) {
                 if(!personsSelected.contains(personSelectedStorageItem)) {
                     personsSelected.add(personSelectedStorageItem);
                 }
             }
         }
 
+        // TODO: 
         personSelectedBoolean = new boolean[personsStringList.length];
         int i = 0;
         int j = 0;
-
         try{
             for (i = 0; i < personsSelected.size(); i++) {     // Über personSelected iterieren.
                 for(j = 0; j < personSelectedBoolean.length; j++) {   // Über personSelectedBoolean iterieren.
@@ -162,10 +159,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
-                   // if(!personList.contains(selectedItemId)) {
-                        personsSelected.add(selectedItemId);
-
-                    //}
+                    personsSelected.add(selectedItemId);
                 } else if (personsSelected.contains(selectedItemId)) {
                     personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
@@ -186,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
                         String personSelectedStor = gson.toJson(personsSelected);
 
                         editor.putString("personsSelected", personSelectedStor);
-
                         editor.commit();
                     }
                 })
@@ -225,20 +218,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e){
                     personList.add(userInfoDtoArray[i]);
                 }
-
-                /*if(userInfoDtoArray.length == personList.size()) {
-                    if(personList.get(i).equals(userInfoDtoArray[i])) {
-                        personList.add(userInfoDtoArray[i]);
-                    }
-                } else {
-                    try {
-                        if(personList.get(i).equals(userInfoDtoArray[i])) {
-
-                        }
-                    } catch (Exception e) {
-                        personList.add(userInfoDtoArray[i]);
-                    }
-                }*/
             }
         }
     }
