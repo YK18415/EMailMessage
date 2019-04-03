@@ -15,10 +15,14 @@
 
     <!-- New activity -->
     <string name="NewPersonActivityHeadline">Neue Person hinzufügen</string>
-    <string name="Vorname">Vorname:</string>
-    <string name="Nachname">Nachname:</string>
-    <string name="Beruf">Beruf:</string>
-    <string name="EMailadress">E-Mail-Adresse:</string>
-    <string name="Save">Speichern</string>
+    <string name="Vorname">Vorname</string>
+    <string name="Nachname">Nachname</string>
+    <string name="Beruf">Beruf</string>
+    <string name="EMailadress">E-Mail-Adresse</string>
+    <string name="Save">Hinzufügen</string>
 
+    <string name="VornameHeadline">Vorname:</string>
+    <string name="NachnameHeadline">Nachname:</string>
+    <string name="BerufHeadline">Beruf:</string>
+    <string name="EMailadressHeadline">E-Mail-Adresse:</string>
 </resources>

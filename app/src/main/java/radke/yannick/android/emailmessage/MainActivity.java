@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,21 +134,6 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < personList.size(); i++) {
             personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
         }
-
-       /* // Get saved personSelected string data in it.
-        String personSelectedStorageString = settings.getString("personsSelected", "");
-
-        // Create Gson object and translate the json string to related java object array.
-        Gson gson = new Gson();
-        int personSelectedStorageArray[] = gson.fromJson(personSelectedStorageString, int[].class);*/
-
-        /*if(personSelectedStorageArray != null) {
-            for (int personSelectedStorageItem: personSelectedStorageArray) {
-                if(!personsSelected.contains(personSelectedStorageItem)) {
-                    personsSelected.add(personSelectedStorageItem);
-                }
-            }
-        }*/
 
         // TODO:
         personSelectedBoolean = new boolean[personsStringList.length];
@@ -196,12 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
                         // Add receivers the the 'Betreff':
                         addReceiversToConcerning(personsSelected, personsStringList);
-                        // Store personsSelected:
-                    /*    Gson gson = new Gson();
-                        String personSelectedStor = gson.toJson(personsSelected);
-
-                        editor.putString("personsSelected", personSelectedStor);
-                        editor.commit();*/
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
