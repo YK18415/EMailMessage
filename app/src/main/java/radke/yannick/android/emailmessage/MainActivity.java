@@ -78,11 +78,17 @@ public class MainActivity extends AppCompatActivity {
 
         // PersonSelected:
         String personSelectedStorageString = settings.getString("personsSelected", "");
-
         // Create Gson object and translate the json string to related java object array.
         Gson gsonPersonSelected = new Gson();
         final int personSelectedStorageArray[] = gsonPersonSelected.fromJson(personSelectedStorageString, int[].class);
 
+        if(personSelectedStorageArray != null) {
+            for (int personSelectedStorageItem: personSelectedStorageArray) {
+                if(!personsSelected.contains(personSelectedStorageItem)) {
+                    personsSelected.add(personSelectedStorageItem);
+                }
+            }
+        }
 
 
         // Person-choose:
@@ -137,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         int personSelectedStorageArray[] = gson.fromJson(personSelectedStorageString, int[].class);*/
 
-        if(personSelectedStorageArray != null) {
+        /*if(personSelectedStorageArray != null) {
             for (int personSelectedStorageItem: personSelectedStorageArray) {
                 if(!personsSelected.contains(personSelectedStorageItem)) {
                     personsSelected.add(personSelectedStorageItem);
                 }
             }
-        }
+        }*/
 
         // TODO:
         personSelectedBoolean = new boolean[personsStringList.length];
@@ -270,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
         Gson gsonPersonSelected = new Gson();
         String personSelectedStor = gsonPersonSelected.toJson(personsSelected);
 
+        // Dies ist null.
         editor.putString("personsSelected", personSelectedStor);
         editor.commit();
     }
