@@ -76,11 +76,20 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         final Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
 
+        // PersonSelected:
+        String personSelectedStorageString = settings.getString("personsSelected", "");
+
+        // Create Gson object and translate the json string to related java object array.
+        Gson gsonPersonSelected = new Gson();
+        final int personSelectedStorageArray[] = gsonPersonSelected.fromJson(personSelectedStorageString, int[].class);
+
+
+
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseReceivers(userInfoDtoArray);
+                chooseReceivers(userInfoDtoArray, personSelectedStorageArray);
             }
         });
 
@@ -106,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         textViewDate.setText(folderName);
     }
 
-    private void chooseReceivers(Person[] userInfoDtoArray) {
+    private void chooseReceivers(Person[] userInfoDtoArray, int personSelectedStorageArray[]) {
         loadPersonList(userInfoDtoArray);
 
         // added the newPerson, who was created by the user in the popup-menu:
@@ -121,12 +130,12 @@ public class MainActivity extends AppCompatActivity {
             personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
         }
 
-        // Get saved personSelected string data in it.
+       /* // Get saved personSelected string data in it.
         String personSelectedStorageString = settings.getString("personsSelected", "");
 
         // Create Gson object and translate the json string to related java object array.
         Gson gson = new Gson();
-        int personSelectedStorageArray[] = gson.fromJson(personSelectedStorageString, int[].class);
+        int personSelectedStorageArray[] = gson.fromJson(personSelectedStorageString, int[].class);*/
 
         if(personSelectedStorageArray != null) {
             for (int personSelectedStorageItem: personSelectedStorageArray) {
@@ -210,13 +219,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadPersonList(Person[] userInfoDtoArray) {
-        /*// Get saved string data in it.
-        String popupReceiverListString = settings.getString("PERSONLIST", "");
-
-        // Create Gson object and translate the json string to related java object array.
-        Gson gson = new Gson();
-        Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);*/
-
         if(userInfoDtoArray != null) {
             for (int i = 0; i < userInfoDtoArray.length; i++) {
                 try{
