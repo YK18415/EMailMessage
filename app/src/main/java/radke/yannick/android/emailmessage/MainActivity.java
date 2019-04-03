@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     boolean[] personSelectedBoolean;
 
     //Storage:
-    SharedPreferences.Editor editor;
     SharedPreferences settings;
 
     @Override
@@ -54,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
         // Storage:
-        settings = context.getSharedPreferences("userdetails", MODE_PRIVATE); // Zum Lesen.
-        editor = settings.edit(); // Zum Schreiben.
+        settings = context.getSharedPreferences("userdetails", MODE_PRIVATE); // For reading.
 
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
@@ -74,27 +73,21 @@ public class MainActivity extends AppCompatActivity {
         String popupReceiverListString = settings.getString("PERSONLIST", "");
         // Create Gson object and translate the json string to related java object array.
         Gson gson = new Gson();
-        final Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
+        final Person popupReceiverArray[] = gson.fromJson(popupReceiverListString, Person[].class);
 
         // PersonSelected:
         String personSelectedStorageString = settings.getString("personsSelected", "");
-        // Create Gson object and translate the json string to related java object array.
+        // Create Gson object again.
         Gson gsonPersonSelected = new Gson();
         final int personSelectedStorageArray[] = gsonPersonSelected.fromJson(personSelectedStorageString, int[].class);
 
-        if(personSelectedStorageArray != null) {
-            for (int personSelectedStorageItem: personSelectedStorageArray) {
-                if(!personsSelected.contains(personSelectedStorageItem)) {
-                    personsSelected.add(personSelectedStorageItem);
-                }
-            }
-        }
+        handlePersonSelectedAdd(personSelectedStorageArray);
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseReceivers(userInfoDtoArray, personSelectedStorageArray);
+                chooseReceivers(popupReceiverArray, personSelectedStorageArray);
             }
         });
 
@@ -118,6 +111,16 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         String folderName = formatter.format(today);
         textViewDate.setText(folderName);
+    }
+
+    private void handlePersonSelectedAdd(int personSelectedStorageArray[]) {
+        if(personSelectedStorageArray != null) {
+            for (int personSelectedStorageItem: personSelectedStorageArray) {
+                if(!personsSelected.contains(personSelectedStorageItem)) {
+                    personsSelected.add(personSelectedStorageItem);
+                }
+            }
+        }
     }
 
     private void chooseReceivers(Person[] userInfoDtoArray, int personSelectedStorageArray[]) {
@@ -151,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("I: " + i + " J: " + j);
             System.out.println(e.getStackTrace().toString());
         }
-
 
         openPopupDialog(personsSelected, personsStringList, personSelectedBoolean);
     }
@@ -196,8 +198,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        // Load the E-Mail-List and show if there changed anything:
-
         dialog = builder.create();
         dialog.show();
     }
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                newPerson = (Person) data.getExtras().getSerializable("PERSON");;
+                newPerson = (Person) Objects.requireNonNull(data.getExtras()).getSerializable("PERSON");;
             }
         }
     }
@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
+        SharedPreferences.Editor editor = settings.edit(); // For writing.
 
         // Store the data:
         editor.putString("message", String.valueOf(editTextMessage.getText()));
@@ -299,17 +300,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            // Clear for the selectedPersons:
-            personsSelected.clear();
-            for(int i = 0; i < personSelectedBoolean.length; i++) {
-                personSelectedBoolean[i] = false;
-            }
-
+            clearSelectedPersons();
             startActivity(Intent.createChooser(emailIntent, "Verschicke E-Mail..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(MainActivity.this,
-                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,"There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void clearSelectedPersons() {
+        personsSelected.clear();
+        for(int i = 0; i < personSelectedBoolean.length; i++) {
+            personSelectedBoolean[i] = false;
         }
     }
 }
