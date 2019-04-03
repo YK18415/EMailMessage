@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextReceiver;
     EditText editTextConcerning;
     Person newPerson;
-    List<String> emailadressesList;
-    String emailadressesArray[];
+    List<String> emailadressesList = new ArrayList<>();;
+
     List<Person> personList = new ArrayList<>();
     EditText editTextMessage;
     TextView textViewDate;
@@ -69,11 +69,18 @@ public class MainActivity extends AppCompatActivity {
         personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
         personList.add(new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de"));
 
+        // Load data, which are stored in the preferences:
+        // PersonList:
+        String popupReceiverListString = settings.getString("PERSONLIST", "");
+        // Create Gson object and translate the json string to related java object array.
+        Gson gson = new Gson();
+        final Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
+
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseReceivers();
+                chooseReceivers(userInfoDtoArray);
             }
         });
 
@@ -99,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
         textViewDate.setText(folderName);
     }
 
-    private void chooseReceivers() {
-        loadPersonList();
+    private void chooseReceivers(Person[] userInfoDtoArray) {
+        loadPersonList(userInfoDtoArray);
 
         // added the newPerson, who was created by the user in the popup-menu:
         if(newPerson != null && !personList.contains(newPerson)) {
@@ -109,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
         final String[] personsStringList = new String[personList.size()];
-        emailadressesList = new ArrayList<>();
 
         for (int i = 0; i < personList.size(); i++) {
             personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
@@ -130,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // TODO: 
+        // TODO:
         personSelectedBoolean = new boolean[personsStringList.length];
         int i = 0;
         int j = 0;
@@ -151,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         openPopupDialog(personsSelected, personsStringList, personSelectedBoolean);
     }
 
-    private void openPopupDialog(final ArrayList<Integer> personsSelected, final String[] personsStringList, boolean[] personSelectedBoolean) {
+    private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList, boolean[] personSelectedBoolean) {
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Empfängerwahl");
@@ -169,18 +175,18 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        for (Integer personSelectedItem: personsSelected) {
-                            emailadressesList.add(personList.get(personSelectedItem).getEmailadress());
+                        for (Object personSelectedItem: personsSelected) {
+                            emailadressesList.add(personList.get((Integer) personSelectedItem).getEmailadress());
                         }
 
                         // Add receivers the the 'Betreff':
                         addReceiversToConcerning(personsSelected, personsStringList);
                         // Store personsSelected:
-                        Gson gson = new Gson();
+                    /*    Gson gson = new Gson();
                         String personSelectedStor = gson.toJson(personsSelected);
 
                         editor.putString("personsSelected", personSelectedStor);
-                        editor.commit();
+                        editor.commit();*/
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -197,17 +203,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        // Load the E-Mail-List and show if there changed anything:
+
         dialog = builder.create();
         dialog.show();
     }
 
-    private void loadPersonList() {
-        // Get saved string data in it.
+    private void loadPersonList(Person[] userInfoDtoArray) {
+        /*// Get saved string data in it.
         String popupReceiverListString = settings.getString("PERSONLIST", "");
 
         // Create Gson object and translate the json string to related java object array.
         Gson gson = new Gson();
-        Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);
+        Person userInfoDtoArray[] = gson.fromJson(popupReceiverListString, Person[].class);*/
 
         if(userInfoDtoArray != null) {
             for (int i = 0; i < userInfoDtoArray.length; i++) {
@@ -253,10 +261,14 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("concerning", String.valueOf(editTextConcerning.getText()));
 
         // Store personList:
-        Gson gson = new Gson();
-        String s = gson.toJson(personList);
+        Gson gsonPersonList = new Gson();
+        String s = gsonPersonList.toJson(personList);
         editor.putString("PERSONLIST", s);
 
+        Gson gsonPersonSelected = new Gson();
+        String personSelectedStor = gsonPersonSelected.toJson(personsSelected);
+
+        editor.putString("personsSelected", personSelectedStor);
         editor.commit();
     }
 
@@ -272,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
         String message = editTextMessage.getText().toString() + "\n\n----\nGeschrieben am: " + textViewDate.getText();
         String betreff = editTextConcerning.getText().toString();
 
-        emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
+        String[] emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
         String[] TO = emailadressesArray;
 
         /*
@@ -291,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
 */
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
-        // Ohne dem funktioniert es nicht, wieso?
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.setType("text/plain");
 
