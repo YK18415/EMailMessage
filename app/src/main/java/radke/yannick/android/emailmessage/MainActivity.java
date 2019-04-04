@@ -19,9 +19,12 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -64,12 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Load data, which are stored in the preferences:
         loadPersonList();
-        // PersonSelected:
-        String personSelectedStorageString = settings.getString("personsSelected", "");
-        // Create Gson object again.
-        Gson gsonPersonSelected = new Gson();
-        final int personSelectedStorageArray[] = gsonPersonSelected.fromJson(personSelectedStorageString, int[].class);
-
+        int[] personSelectedStorageArray = loadData("personsSelected", int[].class, settings);
         loadEmailaddressesList();
         handlePersonSelected(personSelectedStorageArray);
 
@@ -96,11 +94,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void loadPersonList(){
-        String popupReceiverListString = settings.getString("PERSONLIST", "");
-        // Create Gson object and translate the json string to related java object array.
+    private <T> T loadData(String key, Class<T> type, SharedPreferences settings) {
+        String storageString = settings.getString(key, ""); // PersonSelected
         Gson gson = new Gson();
-        Person[] popupReceiverArray = gson.fromJson(popupReceiverListString, Person[].class);
+        T storageArray = gson.fromJson(storageString, type);
+
+        return (T) storageArray;
+    }
+
+    private void loadPersonList(){
+        Person[] popupReceiverArray = loadData("PERSONLIST", Person[].class, settings);
 
         // Add standard-persons (It is a kind of a seeder):
         if(personList.size() == 0) {
@@ -122,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadEmailaddressesList() {
-        String emailaddressesString = settings.getString("emailaddresses", "");
-        Gson gson = new Gson();
-        String[] emailaddressesArray = gson.fromJson(emailaddressesString, String[].class);
+        String[] emailaddressesArray = loadData("emailaddresses", String[].class, settings);
 
         if(emailaddressesArray != null) {
             for(int i = 0; i < emailaddressesArray.length; i++) {
@@ -176,15 +177,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
                     toAddToPersonSelected.add(selectedItemId);
-                    //personsSelected.add(selectedItemId);
                 } else if (personsSelected.contains(selectedItemId)) {
                     toRemoveFromPersonSelected.add(selectedItemId);
                     toRemoveFromEmailadressesList.add(personList.get(selectedItemId).getEmailadress());
-                    //personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
             }
         })
-                // Three buttons:
+        // Three buttons:
         .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
@@ -196,17 +195,18 @@ public class MainActivity extends AppCompatActivity {
                 for (Object personSelectedItem : toRemoveFromPersonSelected) {
                     personsSelected.remove(Integer.valueOf((Integer) personSelectedItem));
                 }
-
+                // Remove from emailadressesList:
                 for(String emailaddress : toRemoveFromEmailadressesList) {
                     emailadressesList.remove(emailaddress);
                 }
+                // Add to emailadressesList:
                 for (Object personSelectedItem : personsSelected) {
                     if(!emailadressesList.contains(personList.get((Integer) personSelectedItem).getEmailadress())) {
                         emailadressesList.add(personList.get((Integer) personSelectedItem).getEmailadress());
                     }
                 }
 
-                // Add receivers the the 'Betreff':
+                // Add receivers to the 'Betreff':
                 addReceiversToConcerning(personsSelected, personsStringList);
             }
         })
@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
         storeComplexData(gson,"PERSONLIST", personList, editor);    // Store personList:
         storeComplexData(gson, "personsSelected", personsSelected, editor);  // Store persons, who are selected in the popup-menu
         storeComplexData(gson, "emailaddresses", emailadressesList, editor);    // Store the emailaddressList
-        
+
         editor.commit();
     }
 
