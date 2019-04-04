@@ -64,17 +64,8 @@ public class MainActivity extends AppCompatActivity {
         setEditTextDate(textViewDate);
         editTextMessage = findViewById(R.id.editTextMessage);
 
-        // Add standard-persons (It is a kind of a seeder):
-        personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
-        personList.add(new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de"));
-
         // Load data, which are stored in the preferences:
-        // PersonList:
-        String popupReceiverListString = settings.getString("PERSONLIST", "");
-        // Create Gson object and translate the json string to related java object array.
-        Gson gson = new Gson();
-        final Person popupReceiverArray[] = gson.fromJson(popupReceiverListString, Person[].class);
-
+        loadPersonList();
         // PersonSelected:
         String personSelectedStorageString = settings.getString("personsSelected", "");
         // Create Gson object again.
@@ -87,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseReceivers(popupReceiverArray, personSelectedStorageArray);
+                chooseReceivers();
             }
         });
 
@@ -104,6 +95,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void loadPersonList(){
+        String popupReceiverListString = settings.getString("PERSONLIST", "");
+        // Create Gson object and translate the json string to related java object array.
+        Gson gson = new Gson();
+        Person[] popupReceiverArray = gson.fromJson(popupReceiverListString, Person[].class);
+
+        // Add standard-persons (It is a kind of a seeder):
+        if(personList.size() == 0) {
+            personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
+            personList.add(new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de"));
+        }
+
+        if(popupReceiverArray != null) {
+            for (int i = 0; i < popupReceiverArray.length; i++) {
+                try{
+                    if(personList.get(i).equals(popupReceiverArray[i])) {
+                        personList.add(popupReceiverArray[i]);
+                    }
+                } catch (Exception e){
+                    personList.add(popupReceiverArray[i]);
+                }
+            }
+        }
     }
 
     private void setEditTextDate(TextView textViewDate) {
@@ -123,9 +139,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void chooseReceivers(Person[] userInfoDtoArray, int personSelectedStorageArray[]) {
-        loadPersonList(userInfoDtoArray);
-
+    private void chooseReceivers() {
         // added the newPerson, who was created by the user in the popup-menu:
         if(newPerson != null && !personList.contains(newPerson)) {
             personList.add(newPerson);
@@ -159,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList, boolean[] personSelectedBoolean) {
+        final ArrayList toAddToPersonSelected = new ArrayList();
+        final ArrayList toRemoveFromPersonSelected = new ArrayList();
+        final ArrayList<String> toRemoveFromEmailadressesList = new ArrayList();
+
         Dialog dialog;
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Empfängerwahl");
@@ -166,54 +184,57 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
                 if (isSelected) {
-                    personsSelected.add(selectedItemId);
+                    toAddToPersonSelected.add(selectedItemId);
+                    //personsSelected.add(selectedItemId);
                 } else if (personsSelected.contains(selectedItemId)) {
-                    personsSelected.remove(Integer.valueOf(selectedItemId));
+                    toRemoveFromPersonSelected.add(selectedItemId);
+                    toRemoveFromEmailadressesList.add(personList.get(selectedItemId).getEmailadress());
+                    //personsSelected.remove(Integer.valueOf(selectedItemId));
                 }
             }
         })
                 // Three buttons:
-                .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        for (Object personSelectedItem: personsSelected) {
-                            emailadressesList.add(personList.get((Integer) personSelectedItem).getEmailadress());
-                        }
+        .setPositiveButton("Done!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                // add to personSelected:
+                for (Object personSelectedItem : toAddToPersonSelected) {
+                    personsSelected.add(personSelectedItem);
+                }
+                // Remove from personSelected:
+                for (Object personSelectedItem : toRemoveFromPersonSelected) {
+                    personsSelected.remove(Integer.valueOf((Integer) personSelectedItem));
+                }
 
-                        // Add receivers the the 'Betreff':
-                        addReceiversToConcerning(personsSelected, personsStringList);
+                for(String emailaddress : toRemoveFromEmailadressesList) {
+                    emailadressesList.remove(emailaddress);
+                }
+                for (Object personSelectedItem : personsSelected) {
+                    if(!emailadressesList.contains(personList.get((Integer) personSelectedItem).getEmailadress())) {
+                        emailadressesList.add(personList.get((Integer) personSelectedItem).getEmailadress());
                     }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNeutralButton("Neue Person", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
-                        startActivityForResult(intent, 1);
-                    }
-                });
+                }
+
+                // Add receivers the the 'Betreff':
+                addReceiversToConcerning(personsSelected, personsStringList);
+            }
+        })
+        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Toast.makeText(MainActivity.this, "Abgebrochen", Toast.LENGTH_SHORT).show();
+            }
+        })
+        .setNeutralButton("Neue Person", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Intent intent = new Intent(MainActivity.this, NewPersonActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        });
 
         dialog = builder.create();
         dialog.show();
-    }
-
-    private void loadPersonList(Person[] userInfoDtoArray) {
-        if(userInfoDtoArray != null) {
-            for (int i = 0; i < userInfoDtoArray.length; i++) {
-                try{
-                    if(personList.get(i).equals(userInfoDtoArray[i])) {
-                        personList.add(userInfoDtoArray[i]);
-                    }
-                } catch (Exception e){
-                    personList.add(userInfoDtoArray[i]);
-                }
-            }
-        }
     }
 
     private void addReceiversToConcerning(ArrayList personsSelected, String[] personsStringList) {
@@ -255,8 +276,8 @@ public class MainActivity extends AppCompatActivity {
         Gson gsonPersonSelected = new Gson();
         String personSelectedStor = gsonPersonSelected.toJson(personsSelected);
 
-        // Dies ist null.
         editor.putString("personsSelected", personSelectedStor);
+
         editor.commit();
     }
 
@@ -282,10 +303,10 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             clearSelectedPersons();
-            startActivity(Intent.createChooser(emailIntent, "Verschicke E-Mail..."));
+            startActivity(Intent.createChooser(emailIntent, "Öffne E-Mail-Client..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(MainActivity.this,"There is no email client installed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,"Es sind keine E-Mail-Clients installiert.", Toast.LENGTH_SHORT).show();
         }
     }
 
