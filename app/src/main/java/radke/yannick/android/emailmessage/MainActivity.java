@@ -273,10 +273,15 @@ public class MainActivity extends AppCompatActivity {
         String s = gsonPersonList.toJson(personList);
         editor.putString("PERSONLIST", s);
 
+        // Store positions in the popup-menu, which are selected:
         Gson gsonPersonSelected = new Gson();
         String personSelectedStor = gsonPersonSelected.toJson(personsSelected);
-
         editor.putString("personsSelected", personSelectedStor);
+
+        // Store the emailaddressList:
+        Gson gsonEmailaddresses = new Gson();
+        String emailaddressesStorage = gsonEmailaddresses.toJson(emailadressesList);
+        editor.putString("emailaddresses", emailaddressesStorage);
 
         editor.commit();
     }
