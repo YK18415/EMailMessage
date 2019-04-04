@@ -272,32 +272,13 @@ public class MainActivity extends AppCompatActivity {
         String message = editTextMessage.getText().toString() + "\n\n----\nGeschrieben am: " + textViewDate.getText();
         String betreff = editTextConcerning.getText().toString();
 
-        String[] emailadressesArray = emailadressesList.toArray(new String[emailadressesList.size()]);
-        String[] TO = emailadressesArray;
-
-        /*
-        String mailto = "mailto:bob@example.org.yannick.radke@gmx.de" +
-                "?cc=" + "alice@example.com" +
-                "&body=" + Uri.encode(message);
-
+        // Hangs the e-mail-addresses together:
+        String emailAddressesString = combineEMailAddresses();
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        //emailIntent.setData(Uri.parse(mailto));
-        emailIntent.setData(Uri.parse("mailto:first.mail@gmail.com,second.mail@gmail.com"));
-        //emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] {"user@example.com", "yannick.radke@gmx.de"});
-
-
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);//, Uri.parse("mailto:" + "yannick.radke@gmx.de")); //ACTION_SEND); // Oder ACTION_SENDTO, oder ACTION_MAILTO (Nur Mail-Programme.)
-*/
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
-
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);       // A String[] holding e-mail addresses that should be delivered to.
+        emailIntent.setData(Uri.parse(emailAddressesString)); // The e-mail addresses that should be delivered to.
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, betreff); // A constant string holding the (desired subject line == Betreffzeile) of a message.
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
-
 
         try {
             clearSelectedPersons();
@@ -306,6 +287,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(MainActivity.this,"There is no email client installed.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String combineEMailAddresses() {
+        StringBuilder sb = new StringBuilder("mailto:");
+        sb.append(emailadressesList.get(0)); // The first address.
+        for(int i = 1; i < emailadressesList.size(); i++) {
+            sb.append(",");
+            sb.append(emailadressesList.get(i));
+        }
+
+        return sb.toString();
     }
 
     private void clearSelectedPersons() {
