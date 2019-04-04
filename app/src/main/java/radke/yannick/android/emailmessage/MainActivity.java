@@ -32,14 +32,12 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editTextReceiver;
     EditText editTextConcerning;
-    Person newPerson;
-    List<String> emailadressesList = new ArrayList<>();;
-
-    List<Person> personList = new ArrayList<>();
     EditText editTextMessage;
     TextView textViewDate;
 
+    List<Person> personList = new ArrayList<>();
     ArrayList personsSelected = new ArrayList();
+    List<String> emailadressesList = new ArrayList<>();
     boolean[] personSelectedBoolean;
 
     //Storage:
@@ -54,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
         // Storage:
-        settings = context.getSharedPreferences("userdetails", MODE_PRIVATE); // For reading.
+        settings = context.getSharedPreferences("emailmessagedetails", MODE_PRIVATE); // For reading.
 
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
@@ -72,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
         Gson gsonPersonSelected = new Gson();
         final int personSelectedStorageArray[] = gsonPersonSelected.fromJson(personSelectedStorageString, int[].class);
 
-        handlePersonSelectedAdd(personSelectedStorageArray);
+        loadEmailaddressesList();
+        handlePersonSelected(personSelectedStorageArray);
 
         // Person-choose:
         btnShowPeople.setOnClickListener(new View.OnClickListener() {
@@ -122,6 +121,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void loadEmailaddressesList() {
+        String emailaddressesString = settings.getString("emailaddresses", "");
+        Gson gson = new Gson();
+        String[] emailaddressesArray = gson.fromJson(emailaddressesString, String[].class);
+
+        if(emailaddressesArray != null) {
+            for(int i = 0; i < emailaddressesArray.length; i++) {
+                emailadressesList.add(emailaddressesArray[i]);
+            }
+        }
+    }
+
     private void setEditTextDate(TextView textViewDate) {
         Date today = Calendar.getInstance().getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
@@ -129,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         textViewDate.setText(folderName);
     }
 
-    private void handlePersonSelectedAdd(int personSelectedStorageArray[]) {
+    private void handlePersonSelected(int personSelectedStorageArray[]) {
         if(personSelectedStorageArray != null) {
             for (int personSelectedStorageItem: personSelectedStorageArray) {
                 if(!personsSelected.contains(personSelectedStorageItem)) {
@@ -137,36 +148,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        handlePersonSelectedBoolean(personList);
     }
 
     private void chooseReceivers() {
-        // added the newPerson, who was created by the user in the popup-menu:
-        if(newPerson != null && !personList.contains(newPerson)) {
-            personList.add(newPerson);
-        }
-
         // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
         final String[] personsStringList = new String[personList.size()];
 
         for (int i = 0; i < personList.size(); i++) {
             personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
-        }
-
-        // TODO:
-        personSelectedBoolean = new boolean[personsStringList.length];
-        int i = 0;
-        int j = 0;
-        try{
-            for (i = 0; i < personsSelected.size(); i++) {     // Über personSelected iterieren.
-                for(j = 0; j < personSelectedBoolean.length; j++) {   // Über personSelectedBoolean iterieren.
-                    if(j == (int)personsSelected.get(i)) {
-                        personSelectedBoolean[j] = true;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("I: " + i + " J: " + j);
-            System.out.println(e.getStackTrace().toString());
         }
 
         openPopupDialog(personsSelected, personsStringList, personSelectedBoolean);
@@ -254,8 +245,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                newPerson = (Person) Objects.requireNonNull(data.getExtras()).getSerializable("PERSON");;
+                Person newPerson = (Person) Objects.requireNonNull(data.getExtras()).getSerializable("PERSON");
+
+                // added the newPerson, who was created by the user in the popup-menu:
+                if(newPerson != null && !personList.contains(newPerson)) {
+                    personList.add(newPerson);
+                }
+
+                handlePersonSelectedBoolean(personList);
             }
+        }
+    }
+
+    private void handlePersonSelectedBoolean(List<Person> personList) {
+        personSelectedBoolean = new boolean[personList.size()];
+        try{
+            for (int i = 0; i < personsSelected.size(); i++) {     // Über personSelected iterieren.
+                for(int j = 0; j < personSelectedBoolean.length; j++) {   // Über personSelectedBoolean iterieren.
+                    if(j == (int)personsSelected.get(i)) {
+                        personSelectedBoolean[j] = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getStackTrace().toString());
         }
     }
 
@@ -268,22 +281,18 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("message", String.valueOf(editTextMessage.getText()));
         editor.putString("concerning", String.valueOf(editTextConcerning.getText()));
 
-        // Store personList:
-        Gson gsonPersonList = new Gson();
-        String s = gsonPersonList.toJson(personList);
-        editor.putString("PERSONLIST", s);
+        Gson gson = new Gson();
 
-        // Store positions in the popup-menu, which are selected:
-        Gson gsonPersonSelected = new Gson();
-        String personSelectedStor = gsonPersonSelected.toJson(personsSelected);
-        editor.putString("personsSelected", personSelectedStor);
-
-        // Store the emailaddressList:
-        Gson gsonEmailaddresses = new Gson();
-        String emailaddressesStorage = gsonEmailaddresses.toJson(emailadressesList);
-        editor.putString("emailaddresses", emailaddressesStorage);
-
+        storeComplexData(gson,"PERSONLIST", personList, editor);    // Store personList:
+        storeComplexData(gson, "personsSelected", personsSelected, editor);  // Store persons, who are selected in the popup-menu
+        storeComplexData(gson, "emailaddresses", emailadressesList, editor);    // Store the emailaddressList
+        
         editor.commit();
+    }
+
+    private void storeComplexData(Gson gson, String key, List data, SharedPreferences.Editor editor) {
+        String dataString = gson.toJson(data);
+        editor.putString(key, dataString);
     }
 
     @Override
@@ -308,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             clearSelectedPersons();
+            emailadressesList.clear();
             startActivity(Intent.createChooser(emailIntent, "Öffne E-Mail-Client..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
