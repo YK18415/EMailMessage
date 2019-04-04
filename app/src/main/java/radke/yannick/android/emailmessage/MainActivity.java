@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,12 +20,9 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -33,15 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static Context context;
 
-    EditText editTextReceiver;
+    TextView textViewReceiver;
     EditText editTextConcerning;
     EditText editTextMessage;
     TextView textViewDate;
 
     List<Person> personList = new ArrayList<>();
-    ArrayList personsSelected = new ArrayList();
+    ArrayList<Integer> personsSelected = new ArrayList();
     List<String> emailadressesList = new ArrayList<>();
     boolean[] personSelectedBoolean;
+    String[] personsStringArray; //= new String[0]; // Will be overrided.
 
     //Storage:
     SharedPreferences settings;
@@ -60,9 +59,10 @@ public class MainActivity extends AppCompatActivity {
         // Layout components:
         Button btnShowPeople = findViewById(R.id.btn_show_people);
         editTextConcerning = findViewById(R.id.editTextConcerning);
-        editTextReceiver = findViewById(R.id.editTextReceiver);
+        textViewReceiver = findViewById(R.id.textViewReceiver);
+        textViewReceiver.setMovementMethod(new ScrollingMovementMethod());
         textViewDate = findViewById(R.id.textViewDate);
-        setEditTextDate(textViewDate);
+        setTextViewDate(textViewDate);
         editTextMessage = findViewById(R.id.editTextMessage);
 
         // Load data, which are stored in the preferences:
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // check, if there are at least one receiver:
-                if(!editTextReceiver.getText().toString().equals("")) {
+                if(!textViewReceiver.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Die E-Mail wird gleich verschickt.", Toast.LENGTH_LONG).show();
                     sendEmail();
                 } else {
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         T storageArray = gson.fromJson(storageString, type);
 
-        return (T) storageArray;
+        return storageArray;
     }
 
     private void loadPersonList(){
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Add standard-persons (It is a kind of a seeder):
         if(personList.size() == 0) {
-            personList.add(new Person("Kira", "Schatzi", "Student", "kira.begau@gmx.de"));
+            personList.add(new Person("Kira", "Begau", "Student", "kira.begau@gmx.de"));
             personList.add(new Person("Kirsten", "Büggener", "VW", "k.bueggener@gmx.de"));
         }
 
@@ -134,11 +134,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setEditTextDate(TextView textViewDate) {
+    private void setTextViewDate(TextView textViewDate) {
         Date today = Calendar.getInstance().getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        String folderName = formatter.format(today);
-        textViewDate.setText(folderName);
+        String date = formatter.format(today);
+        textViewDate.setText(date);
     }
 
     private void handlePersonSelected(int personSelectedStorageArray[]) {
@@ -155,18 +155,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void chooseReceivers() {
         // The method setMultiChoiceItmes wants to have an Array. So, the receivers-objects have to be converted, so that only the names are shown in the popup-menu.
-        final String[] personsStringList = new String[personList.size()];
+        personsStringArray = new String[personList.size()];
 
         for (int i = 0; i < personList.size(); i++) {
-            personsStringList[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
+            personsStringArray[i] = personList.get(i).getVorname() + " " + personList.get(i).getNachname();
         }
 
-        openPopupDialog(personsSelected, personsStringList, personSelectedBoolean);
+        openPopupDialog(personsSelected, personsStringArray, personSelectedBoolean);
     }
 
     private void openPopupDialog(final ArrayList personsSelected, final String[] personsStringList, boolean[] personSelectedBoolean) {
-        final ArrayList toAddToPersonSelected = new ArrayList();
-        final ArrayList toRemoveFromPersonSelected = new ArrayList();
+        final ArrayList<Integer> toAddToPersonSelected = new ArrayList();
+        final ArrayList<Integer> toRemoveFromPersonSelected = new ArrayList();
         final ArrayList<String> toRemoveFromEmailadressesList = new ArrayList();
 
         Dialog dialog;
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void addReceiversToConcerning(ArrayList personsSelected, String[] personsStringList) {
+    private void addReceiversToConcerning(ArrayList<Integer> personsSelected, String[] personsStringList) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < personsSelected.size(); i++) {
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        editTextReceiver.setText(sb.toString());
+        textViewReceiver.setText(sb.toString());
     }
 
     @Override
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         // Store the data:
         editor.putString("message", String.valueOf(editTextMessage.getText()));
         editor.putString("concerning", String.valueOf(editTextConcerning.getText()));
-
+        editor.putString("receivers", String.valueOf(textViewReceiver.getText()));
         Gson gson = new Gson();
 
         storeComplexData(gson,"PERSONLIST", personList, editor);    // Store personList:
@@ -300,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         editTextMessage.setText(settings.getString("message",""));
         editTextConcerning.setText(settings.getString("concerning", ""));
+        textViewReceiver.setText(settings.getString("receivers", ""));
     }
 
     protected void sendEmail() {
@@ -318,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             clearSelectedPersons();
             emailadressesList.clear();
+            textViewReceiver.setText("");
             startActivity(Intent.createChooser(emailIntent, "Öffne E-Mail-Client..."));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {

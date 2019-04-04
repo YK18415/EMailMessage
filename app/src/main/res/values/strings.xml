@@ -11,6 +11,7 @@
     <string name="EmpfaengerHeadline">Empfänger:</string>
     <string name="BetreffHeadline">Betreff:</string>
     <string name="MessageHint">Ihre Mitteilung</string>
+    <string name="ConcerningHint">Betreff</string>
     <string name="chooseReceivers">Empfänger auswählen</string>
 
     <!-- New activity -->

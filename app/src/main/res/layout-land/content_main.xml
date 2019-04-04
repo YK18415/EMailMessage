@@ -30,12 +30,12 @@
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="8dp"
         android:text="@string/EmpfaengerHeadline"
-        app:layout_constraintEnd_toStartOf="@+id/editTextReceiver"
+        app:layout_constraintEnd_toStartOf="@+id/textViewReceiver"
         app:layout_constraintTop_toBottomOf="@+id/btn_show_people" />
 
     <TextView
@@ -64,14 +64,17 @@
         app:layout_constraintStart_toEndOf="@+id/editTextMessage"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-    <EditText
-        android:id="@+id/editTextReceiver"
+    <TextView
+        android:id="@+id/textViewReceiver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="18dp"
         android:layout_marginEnd="8dp"
+        android:background="#F4F4F4"
         android:ems="10"
         android:inputType="textPersonName"
+        android:scrollbars="horizontal"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_show_people" />
 
@@ -80,9 +83,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="75dp"
+        android:layout_marginBottom="70dp"
+        android:background="#F4F4F4"
         android:ems="10"
         android:inputType="date"
+        android:scrollbars="horizontal"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -93,12 +98,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
+        android:hint="@string/ConcerningHint"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/textViewDate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextReceiver" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewReceiver" />
 
     <Button
         android:id="@+id/btn_show_people"

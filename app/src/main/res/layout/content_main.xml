@@ -14,7 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="80dp"
         android:autofillHints="Mitteilung"
@@ -59,15 +59,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-    <EditText
-        android:id="@+id/editTextReceiver"
+    <TextView
+        android:id="@+id/textViewReceiver"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="31dp"
         android:layout_marginEnd="8dp"
+        android:background="#F4F4F4"
         android:ems="10"
         android:inputType="textPersonName"
+        android:textSize="18sp"
+        android:scrollbars = "horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView6"
         app:layout_constraintTop_toBottomOf="@+id/btn_show_people" />
@@ -82,6 +85,7 @@
         android:ems="10"
         android:inputType="date"
         android:textSize="18sp"
+        android:background="#F4F4F4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView7"
@@ -95,11 +99,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
+        android:hint="@string/ConcerningHint"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView8"
-        app:layout_constraintTop_toBottomOf="@+id/editTextReceiver" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewReceiver" />
 
     <Button
         android:id="@+id/btn_show_people"
